@@ -1,0 +1,147 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    height: 100vh; 
+}
+
+
+.navbar {
+    background-color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar .logo h1 {
+    color: white;
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 15px; 
+}
+
+.navbar a {
+    color: white;
+    padding: 14px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+
+.container {
+    max-width: 1200px; 
+    margin: 20px auto; 
+    background: #fff;
+    padding: 80px 20px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    text-align: center;
+    height: 100vh; 
+}
+
+
+.container h1 {
+    font-size: 40px;
+    color: #333;
+}
+
+
+.container a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.container a:hover {
+    background-color: #d32f2f;
+}
+
+
+.recipe-post {
+    border-bottom: 1px solid #ccc;
+    padding: 15px 0;
+}
+
+.recipe-post:last-child {
+    border-bottom: none;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.like-button {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #f44336;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.like-button:hover {
+    background-color: #d32f2f;
+}
+
+button {
+    background-color: #f8b400;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #f39c12;
+}
+
+span {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
