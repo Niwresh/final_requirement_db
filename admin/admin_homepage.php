@@ -32,8 +32,6 @@ $user = mysqli_fetch_assoc($query);
     <a href="admin_homepage.php">Home</a>
     <a href="users_list.php">Users</a> 
     <a href="posts.php">Posts</a>
-    <a href="Blocked_users.php">Blocked</a>
-    <a href="logout.php">Logout</a>
 </div>
 
     </div>

@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +12,7 @@
     <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
-    <div class="container" id="signup" style="display:none;">
+<div class="container" id="signup" style="display:none;">
       <h1 class="form-title">Register</h1>
       <form method="post" action="register.php">
         <div class="input-group">
@@ -83,5 +87,30 @@
       </div>
 
       <script src="script.js"></script>
+
+    <!-- Unauthorized Access Modal -->
+    <div id="unauthorizedModal" class="modal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
+        <h2>Access Denied</h2>
+        <p>You are not authorized to access this page.</p>
+        <button onclick="redirectToLogin()">Go Back</button>
+    </div>
+
+    <script>
+        function redirectToLogin() {
+            window.location.href = "index.php";
+        }
+
+        window.onload = function() {
+            var isUnauthorized = <?php echo json_encode($_SESSION['unauthorizedAccess'] ?? false); ?>;
+            console.log("Unauthorized Access:", isUnauthorized); // Debugging log
+            
+            if (isUnauthorized) {
+                document.getElementById('unauthorizedModal').style.display = 'block';
+            }
+
+            <?php $_SESSION['unauthorizedAccess'] = false; ?> // Reset flag after showing modal
+        };
+    </script>
+
 </body>
 </html>
