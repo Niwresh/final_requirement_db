@@ -20,7 +20,7 @@ class Comment {
             JOIN users ON comments.userId = users.id
             WHERE comments.postId = ?
             ORDER BY comments.created_at DESC
-        ";
+            ";
     
        
         $stmt = $this->conn->prepare($sql);
