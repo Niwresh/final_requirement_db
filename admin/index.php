@@ -35,7 +35,7 @@ session_start();
             <input type="password" name="password" id="password" placeholder="Password" required>
             <label for="password">Password</label>
         </div>
-        <!-- Add a checkbox for admin registration -->
+       
         <div class="input-group">
             <label for="isAdmin">Register as Admin</label>
             <input type="checkbox" name="isAdmin" value="yes">
@@ -88,8 +88,8 @@ session_start();
 
       <script src="script.js"></script>
 
-    <!-- Unauthorized Access Modal -->
-    <div id="unauthorizedModal" class="modal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
+   
+    <div id="unauthorizedModal" class="modal" style="display:none; position: fixed; top: 70px; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; box-shadow: 0px 0px 10px rgba(0,0,0,0.5);">
         <h2>Access Denied</h2>
         <p>You are not authorized to access this page.</p>
         <button onclick="redirectToLogin()">Go Back</button>
@@ -102,13 +102,13 @@ session_start();
 
         window.onload = function() {
             var isUnauthorized = <?php echo json_encode($_SESSION['unauthorizedAccess'] ?? false); ?>;
-            console.log("Unauthorized Access:", isUnauthorized); // Debugging log
+            console.log("Unauthorized Access:", isUnauthorized); 
             
             if (isUnauthorized) {
                 document.getElementById('unauthorizedModal').style.display = 'block';
             }
 
-            <?php $_SESSION['unauthorizedAccess'] = false; ?> // Reset flag after showing modal
+            <?php $_SESSION['unauthorizedAccess'] = false; ?> 
         };
     </script>
 
