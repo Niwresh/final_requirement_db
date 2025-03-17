@@ -6,29 +6,37 @@
     <title>Register & Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style/style.css">
+    
+    <!-- Google reCAPTCHA API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <div class="container" id="signup" style="display:none;">
       <h1 class="form-title">Register</h1>
-      <form method="POST" action="register.php">
-    <label for="Fname">First Name:</label>
-    <input type="text" name="Fname" id="Fname" required>
-    <br>
+      <form method="POST" action="register.php" onsubmit="return validateRecaptcha();">
+        <label for="Fname">First Name:</label>
+        <input type="text" name="Fname" id="Fname" required>
+        <br>
 
-    <label for="Lname">Last Name:</label>
-    <input type="text" name="Lname" id="Lname" required>
-    <br>
+        <label for="Lname">Last Name:</label>
+        <input type="text" name="Lname" id="Lname" required>
+        <br>
 
-    <label for="email">Email:</label>
-    <input type="email" name="email" id="email" required>
-    <br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+        <br>
 
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password" required>
-    <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <br>
 
-    <input type="submit" class="btn" name="signUp" value="Sign Up">
-</form>
+        <!-- Google reCAPTCHA -->
+        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+        <p id="recaptchaError" style="color: red; display: none;">Please verify that you are not a robot.</p>
+        <br>
+
+        <input type="submit" class="btn" name="signUp" value="Sign Up">
+      </form>
 
       <p class="or">
         ----------or--------
@@ -73,6 +81,17 @@
           <button id="signUpButton">Sign Up</button>
         </div>
       </div>
+
+      <script>
+          function validateRecaptcha() {
+              var response = grecaptcha.getResponse();
+              if (response.length === 0) {
+                  document.getElementById('recaptchaError').style.display = 'block';
+                  return false; // Prevent form submission
+              }
+              return true;
+          }
+      </script>
       <script src="script.js"></script>
 </body>
 </html>
