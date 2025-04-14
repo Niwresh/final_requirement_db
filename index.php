@@ -64,7 +64,7 @@
 <body>
     <div class="container" id="signup" style="display:none;">
         <h1 class="form-title">Register</h1>
-        <form method="POST" action="register.php" id="signupForm" onsubmit="return handleSubmit();">
+        <form id="signupForm" onsubmit="return handleSubmit();">
             <label for="Fname">First Name:</label>
             <input type="text" name="Fname" id="Fname" required>
             <br>
@@ -135,52 +135,83 @@
     const puzzleContainer = document.getElementById("puzzleContainer");
     const slider = document.getElementById("slider");
 
-    // Initialize puzzle pieces with one tile that will be moved
+    // Puzzle piece configuration (last one is movable)
     let puzzlePieces = [
-        { id: 1, img: "images/puzzle_part_1.jpg", position: 0, isMovable: false },
-        { id: 2, img: "images/puzzle_part_2.jpg", position: 1, isMovable: false },
-        { id: 3, img: "images/puzzle_part_3.jpg", position: 2, isMovable: false },
-        { id: 4, img: "images/puzzle_part_4.jpg", position: 3, isMovable: false },
-        { id: 5, img: "images/puzzle_part_5.jpg", position: 4, isMovable: false },
-        { id: 6, img: "images/puzzle_part_6.jpg", position: 5, isMovable: false },
-        { id: 7, img: "images/puzzle_part_7.jpg", position: 6, isMovable: false },
-        { id: 8, img: "images/puzzle_part_8.jpg", position: 7, isMovable: false },
-        { id: 9, img: "images/puzzle_part_9.jpg", position: 8, isMovable: true } // Only this tile can be moved
+        { id: 1, img: "images/puzzle_part_1.jpg" },
+        { id: 2, img: "images/puzzle_part_2.jpg" },
+        { id: 3, img: "images/puzzle_part_3.jpg" },
+        { id: 4, img: "images/puzzle_part_4.jpg" },
+        { id: 5, img: "images/puzzle_part_5.jpg" },
+        { id: 6, img: "images/puzzle_part_6.jpg" },
+        { id: 7, img: "images/puzzle_part_7.jpg" },
+        { id: 8, img: "images/puzzle_part_8.jpg" },
+        { id: 9, img: "images/puzzle_part_9.jpg" } // this one will move
     ];
 
-    // Function to render the puzzle tiles
-    function renderPuzzle() {
-        puzzleContainer.innerHTML = ""; // Clear existing puzzle
+    // Simulated mismatch offset (for example: -100px)
+    const puzzleOffset = -100; // starts 100px to the left
+    const maxSliderValue = 100; // slider max value
 
-        puzzlePieces.forEach(piece => {
+    function renderPuzzle(sliderValue = 0) {
+        puzzleContainer.innerHTML = "";
+
+        puzzlePieces.forEach((piece, index) => {
             const tile = document.createElement("div");
             tile.classList.add("puzzle-tile");
             tile.style.backgroundImage = `url(${piece.img})`;
             tile.style.backgroundSize = "cover";
-            tile.dataset.id = piece.id;
-            tile.dataset.position = piece.position;
-            tile.style.transform = `translateX(${piece.isMovable ? 100 : 0}px)`; // Tile moves based on slider
+
+            if (index === 8) {
+                // This is the movable tile
+                const moveX = puzzleOffset + (sliderValue * (Math.abs(puzzleOffset) / maxSliderValue));
+                tile.style.transform = `translateX(${moveX}px)`;
+            }
+
             puzzleContainer.appendChild(tile);
         });
     }
 
-    // Handle the slider to move the movable tile
-    slider.addEventListener('input', function() {
-        const moveAmount = slider.value;
-        const movableTile = puzzlePieces.find(piece => piece.isMovable);
-
-        if (movableTile) {
-            movableTile.position = moveAmount;
-            renderPuzzle();
-        }
+    // Slider control for the puzzle piece
+    slider.addEventListener('input', () => {
+        renderPuzzle(slider.value);
     });
 
-    // Submit the puzzle after completion
     function submitPuzzle() {
-        alert("Please complete the puzzle by sliding the piece into place.");
+    const sliderValue = parseInt(slider.value);
+    if (sliderValue >= 98 && sliderValue <= 100) {
+        const form = document.getElementById("signupForm");
+        const formData = new FormData(form);
+
+        fetch("submit_user.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                window.location.href = "index.php";
+            }
+        })
+        .catch(error => {
+            alert("Something went wrong. Try again.");
+            console.error(error);
+        });
+
+        document.getElementById('puzzleModal').style.display = 'none';
+    } else {
+        alert("Please slide the puzzle piece into the correct position.");
+    }
+}
+
+    // Show puzzle when reCAPTCHA is passed
+    function showPuzzleCaptcha() {
+        document.getElementById('puzzleModal').style.display = 'flex';
+        slider.value = 0; // reset
+        renderPuzzle();
     }
 
-    // Handle form submission
+    // reCAPTCHA form submit handler (don't change this)
     function handleSubmit() {
         var response = grecaptcha.getResponse();
         if (response.length === 0) {
@@ -188,17 +219,11 @@
             return false;
         }
 
-        // Trigger puzzle after reCAPTCHA is verified
-        showPuzzleCaptcha();
+        showPuzzleCaptcha(); // show puzzle challenge
         return false;
     }
+</script>
 
-    function showPuzzleCaptcha() {
-        document.getElementById('puzzleModal').style.display = 'flex';
-        renderPuzzle(); // Render the puzzle when modal shows up
-    }
-
-    </script>
 
 </body>
 </html>

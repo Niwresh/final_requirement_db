@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'connect.php';
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -6,31 +7,19 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // ✅ REGISTER USER
+// In your registration section in register.php
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signUp'])) {
     $Fname = trim($_POST['Fname']);
     $Lname = trim($_POST['Lname']);
     $Email = trim($_POST['email']);
     $Password = $_POST['password'];
 
-    $hashedPassword = password_hash($Password, PASSWORD_DEFAULT); 
+    // Debugging: Check if data is received
+    echo "Fname: $Fname, Lname: $Lname, Email: $Email"; // Debugging message
 
-    // Validate reCAPTCHA
-    if (!isset($_POST['g-recaptcha-response']) || empty($_POST['g-recaptcha-response'])) {
-        echo "<script>alert('Please complete the reCAPTCHA verification.'); window.location.href='index.php';</script>";
-        exit();
-    }
+    $hashedPassword = password_hash($Password, PASSWORD_DEFAULT);
 
-    $recaptchaSecretKey = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe";
-    $recaptchaResponse = $_POST['g-recaptcha-response'];
-    $recaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecretKey&response=$recaptchaResponse";
-
-    $verifyResponse = file_get_contents($recaptchaVerifyUrl);
-    $responseData = json_decode($verifyResponse, true);
-
-    if (!$responseData['success']) {
-        echo "<script>alert('reCAPTCHA verification failed. Please try again.'); window.location.href='index.php';</script>";
-        exit();
-    }
+    // Your reCAPTCHA validation code goes here
 
     // Check if email already exists
     $checkEmail = "SELECT * FROM users WHERE Email=?";
@@ -42,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signUp'])) {
     if ($result->num_rows > 0) {
         echo "<script>alert('Email Address Already Exists! Try logging in.'); window.location.href='index.php';</script>";
         exit();
-    } 
+    }
 
     // Insert user into database
     $insertQuery = "INSERT INTO users (Fname, Lname, Email, Password) VALUES (?, ?, ?, ?)";
@@ -56,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signUp'])) {
         echo "<script>alert('Error: " . $stmt->error . "');</script>";
     }
 }
+
 
 // ✅ LOGIN USER
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signIn'])) {
