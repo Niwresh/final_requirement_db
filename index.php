@@ -224,6 +224,61 @@
     }
 </script>
 
+<!-- OTP Verification Modal -->
+<div id="otpModal" class="puzzle-modal">
+    <div class="puzzle-content">
+        <h2>Enter OTP</h2>
+        <form id="otpForm">
+            <input type="text" name="otp" id="otpInput" placeholder="Enter OTP" required>
+            <br>
+            <button type="submit">Verify OTP</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const loginForm = document.querySelector('#signIn form');
+
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(loginForm);
+
+        fetch('send_otp.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('otpModal').style.display = 'flex';
+                localStorage.setItem('loginEmail', formData.get('email'));
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById("otpForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const otp = document.getElementById("otpInput").value;
+        const email = localStorage.getItem("loginEmail");
+
+        fetch('verify_otp.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otp, email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                window.location.href = "homepage.php";
+            }
+        });
+    });
+</script>
+
+
 
 </body>
 </html>
