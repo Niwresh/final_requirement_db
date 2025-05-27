@@ -13,6 +13,28 @@ $password = $_POST['password'] ?? '';
 // Sanitize input
 $email = trim($email);
 
+// Check if user is blocked (email exists in failed_logins table)
+$blockCheck = $conn->prepare("SELECT * FROM failed_logins WHERE email = ?");
+$blockCheck->bind_param("s", $email);
+$blockCheck->execute();
+$blockResult = $blockCheck->get_result();
+
+if ($blockResult->num_rows > 0) {
+    // Build the block message with a request unblock form/button
+    $blockedMessage = '
+        <p>Your account is blocked. Please request admin approval to regain access.</p>
+        <form action="request_unblock.php" method="POST">
+            <input type="hidden" name="email" value="' . htmlspecialchars($email) . '">
+            <button type="submit">Request Access</button>
+        </form>
+    ';
+    echo json_encode([
+        'success' => false,
+        'message' => $blockedMessage
+    ]);
+    exit;
+}
+
 // Check if user with that email exists
 $query = $conn->prepare("SELECT * FROM users WHERE Email = ?");
 $query->bind_param("s", $email);
@@ -44,7 +66,7 @@ try {
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
     $mail->Username   = 'sherwinlumakang827@gmail.com'; // use your Gmail
-    $mail->Password   = 'smwc owkl xpto aaic';    // use Gmail App Password
+    $mail->Password   = 'smwc owkl xpto aaic';          // Gmail App Password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
 
@@ -58,6 +80,9 @@ try {
     $mail->send();
     echo json_encode(['success' => true, 'message' => 'OTP has been sent to your email.']);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => "Failed to send OTP. Mailer Error: {$mail->ErrorInfo}"]);
+    echo json_encode([
+        'success' => false,
+        'message' => "Failed to send OTP. Mailer Error: {$mail->ErrorInfo}"
+    ]);
 }
 ?>
