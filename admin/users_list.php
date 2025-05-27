@@ -26,8 +26,9 @@ $query = mysqli_query($conn, "SELECT * FROM users");
         </div>
         <div class="nav-links">
             <a href="admin_homepage.php">Home</a>
-            <a href="users_list.php">Users</a>
-            <a href="posts.php">Posts</a>
+    <a href="users_list.php">Users</a> 
+    <a href="posts.php">Posts</a>
+    <a href="Blocked_users.php">Blocked</a>
         </div>
     </div>
 

@@ -1,85 +1,170 @@
 <?php
 session_start();
-include('connect.php'); // Ensure the correct database connection
+include('connect.php');
 
-// Redirect if not logged in
-if (!isset($_SESSION['Email'])) {
+// Redirect if not logged in or not admin
+if (!isset($_SESSION['Email']) || $_SESSION['role'] !== 'admin') {
     header('Location: index.php');
     exit();
 }
 
-// Handle Unblock Request
+// Fetch user info
+$email = $_SESSION['Email'];
+$userQuery = mysqli_query($conn, "SELECT * FROM users WHERE Email='$email'");
+$user = mysqli_fetch_assoc($userQuery);
+
+// Handle unblock request
 if (isset($_GET['action']) && $_GET['action'] === 'unblock' && isset($_GET['id'])) {
-    $id = intval($_GET['id']); // Sanitize input
+    $id = intval($_GET['id']);
+    $stmt = $conn->prepare("DELETE FROM failed_logins WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: blocked_users.php");
+    exit();
+}
 
-    // Delete the user from the failed_logins table
-    $deleteQuery = "DELETE FROM failed_logins WHERE id = $id";
-    mysqli_query($conn, $deleteQuery);
-
-    // Redirect back to blocked_users.php after unblocking
-    header('Location: blocked_users.php');
+// Handle export to CSV
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="blocked_users.csv"');
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['ID', 'IP Address', 'Email', 'Blocked Time']);
+    $exportQuery = $conn->query("SELECT id, ip_address, email, attempt_time FROM failed_logins ORDER BY attempt_time DESC");
+    while ($row = $exportQuery->fetch_assoc()) {
+        fputcsv($output, [$row['id'], $row['ip_address'], $row['email'], $row['attempt_time']]);
+    }
+    fclose($output);
     exit();
 }
 
 // Fetch blocked users
-$query = mysqli_query($conn, "SELECT * FROM failed_logins ORDER BY attempt_time DESC");
+$query = $conn->query("SELECT * FROM failed_logins ORDER BY attempt_time DESC");
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blocked Users</title>
-    <link rel="stylesheet" href="../style/homepage.css"> 
+    <link rel="stylesheet" href="style/homepage.css">
+    <style>
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 10px 5px;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #1abc9c;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            padding: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            margin: 0;
+        }
+
+        .nav-links a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="logo">
-            <h1>Admin Panel</h1>
-        </div>
-        <div class="nav-links">
-            <a href="admin_homepage.php">Home</a>
-            <a href="users_list.php">Users</a>
-            <a href="blocked_users.php">Blocked Users</a>
-        </div>
+<div class="navbar">
+    <div class="logo">
+        <h1>FoodLovers</h1>
     </div>
+    <div class="nav-links">
+        <a href="admin_homepage.php">Home</a>
+        <a href="users_list.php">Users</a>
+        <a href="posts.php">Posts</a>
+        <a href="blocked_users.php">Blocked</a>
+    </div>
+</div>
 
-    <!-- Blocked Users Table -->
-    <div class="container">
-        <h1>Blocked Users</h1>
+<div class="container">
+    <h1>Blocked Users</h1>
+    <a class="btn" href="blocked_users.php?export=csv">Export to CSV</a>
 
-        <table border="1">
-            <thead>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IP Address</th>
+                <th>Email</th>
+                <th>Blocked Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($query->num_rows > 0): ?>
+                <?php while ($row = $query->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['id']) ?></td>
+                        <td><?= htmlspecialchars($row['ip_address']) ?></td>
+                        <td><?= htmlspecialchars($row['email']) ?></td>
+                        <td><?= htmlspecialchars($row['attempt_time']) ?></td>
+                        <td>
+                            <a class="btn" href="blocked_users.php?action=unblock&id=<?= $row['id'] ?>" onclick="return confirm('Unblock this user?');">Unblock</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
                 <tr>
-                    <th>ID</th>
-                    <th>IP Address</th>
-                    <th>Email</th>
-                    <th>Blocked Time</th>
-                    <th>Actions</th>
+                    <td colspan="5">No blocked users found.</td>
                 </tr>
-            </thead>
-            <tbody>
-                <?php
-                while ($row = mysqli_fetch_assoc($query)) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['ip_address']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['attempt_time']) . "</td>";
-                    echo "<td>
-                            <a href='blocked_users.php?action=unblock&id=" . $row['id'] . "' onclick='return confirm(\"Are you sure you want to unblock this user?\");'>Unblock</a>
-                          </td>";
-                    echo "</tr>";
-                }
-                ?>
-            </tbody>
-        </table>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
-        <a href="admin_homepage.php">Back to Homepage</a>
-    </div>
+    <a class="btn" href="admin_homepage.php">Back to Homepage</a>
+</div>
 
 </body>
 </html>

@@ -26,9 +26,10 @@ $query = mysqli_query($conn, "SELECT r.*, u.Fname, u.Lname FROM recipes r JOIN u
             <h1>FoodLovers</h1>
         </div>
         <div class="nav-links">
-            <a href="admin_homepage.php">Home</a>
-            <a href="users_list.php">Users</a>
-            <a href="posts.php">Posts</a>
+            <<a href="admin_homepage.php">Home</a>
+    <a href="users_list.php">Users</a> 
+    <a href="posts.php">Posts</a>
+    <a href="Blocked_users.php">Blocked</a>
         </div>
     </div>
     <div class="container">
