@@ -22,10 +22,12 @@ $blockResult = $blockCheck->get_result();
 if ($blockResult->num_rows > 0) {
     echo json_encode([
         'success' => false,
-        'message' => 'Your account is blocked. Please contact the administrator to regain access.'
+        'blocked' => true,
+        'message' => 'Your account is blocked. You may request access below.'
     ]);
     exit;
 }
+
 
 // Check if user with that email exists
 $query = $conn->prepare("SELECT * FROM users WHERE Email = ?");
