@@ -12,9 +12,24 @@ if (!isset($_SESSION['Email'])) {
 if (isset($_GET['action']) && $_GET['action'] === 'unblock' && isset($_GET['id'])) {
     $id = intval($_GET['id']); // Sanitize input
 
-    // Delete the user from the failed_logins table
-    $deleteQuery = "DELETE FROM failed_logins WHERE id = $id";
-    mysqli_query($conn, $deleteQuery);
+    // Fetch email from failed_logins using ID
+    $getEmail = mysqli_query($conn, "SELECT email FROM failed_logins WHERE id = $id");
+    if ($getEmail && mysqli_num_rows($getEmail) > 0) {
+        $emailRow = mysqli_fetch_assoc($getEmail);
+        $email = $emailRow['email'];
+
+        // Delete from failed_logins
+        $deleteQuery = "DELETE FROM failed_logins WHERE id = $id";
+        mysqli_query($conn, $deleteQuery);
+
+        // Update unblock_requests status to 'Approved' for this user if pending
+        $updateRequest = mysqli_query($conn, "
+            UPDATE unblock_requests 
+            SET status = 'Approved' 
+            WHERE user_id = (SELECT id FROM users WHERE Email = '$email') 
+            AND status = 'Pending'
+        ");
+    }
 
     // Redirect back to blocked_users.php after unblocking
     header('Location: blocked_users.php');
@@ -23,10 +38,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'unblock' && isset($_GET['id']
 
 // Handle CSV Download
 if (isset($_GET['action']) && $_GET['action'] === 'download_csv') {
-    // Fetch all blocked users
     $result = mysqli_query($conn, "SELECT * FROM failed_logins ORDER BY attempt_time DESC");
 
-    // Set headers to force download
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="blocked_users_report.csv"');
     header('Pragma: no-cache');
@@ -34,10 +47,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'download_csv') {
 
     $output = fopen('php://output', 'w');
 
-    // Column headers
     fputcsv($output, ['ID', 'IP Address', 'Email', 'Blocked Time']);
 
-    // Output data rows
     while ($row = mysqli_fetch_assoc($result)) {
         fputcsv($output, [
             $row['id'],
@@ -71,10 +82,10 @@ $query = mysqli_query($conn, "SELECT * FROM failed_logins ORDER BY attempt_time 
             <h1>Admin Panel</h1>
         </div>
         <div class="nav-links">
-           <a href="admin_homepage.php">Home</a>
-    <a href="users_list.php">Users</a> 
-    <a href="posts.php">Posts</a>
-    <a href="Blocked_users.php">Blocked</a>
+            <a href="admin_homepage.php">Home</a>
+            <a href="users_list.php">Users</a> 
+            <a href="posts.php">Posts</a>
+            <a href="blocked_users.php">Blocked</a>
         </div>
     </div>
 
