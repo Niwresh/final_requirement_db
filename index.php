@@ -63,26 +63,43 @@
 
 <!-- Registration Form -->
 <div class="container" id="signup" style="display:none;">
-    <h1 class="form-title">Register</h1>
-    <form id="signupForm" onsubmit="return handleSubmit();">
-        <label for="Fname">First Name:</label>
-        <input type="text" name="Fname" id="Fname" required><br>
-        <label for="Lname">Last Name:</label>
-        <input type="text" name="Lname" id="Lname" required><br>
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required><br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required><br>
-
-        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-        <p id="recaptchaError" style="color: red; display: none;">Please verify that you are not a robot.</p><br>
-        <input type="submit" class="btn" name="signUp" value="Sign Up">
-    </form>
-    <p class="or">----------</p>
-    <div class="links">
-        <p>Already Have an Account?</p>
-        <button id="signInButton">Sign In</button>
+  <h1 class="form-title">Register</h1>
+  <form id="signupForm" onsubmit="return handleSubmit();">
+    <div class="input-group">
+      <i class="fas fa-user"></i>
+      <input type="text" name="Fname" id="Fname" placeholder=" " required />
+      <label for="Fname">First Name:</label>
     </div>
+
+    <div class="input-group">
+      <i class="fas fa-user"></i>
+      <input type="text" name="Lname" id="Lname" placeholder=" " required />
+      <label for="Lname">Last Name:</label>
+    </div>
+
+    <div class="input-group">
+      <i class="fas fa-envelope"></i>
+      <input type="email" name="email" id="email" placeholder=" " required />
+      <label for="email">Email:</label>
+    </div>
+
+    <div class="input-group" style="position: relative;">
+      <i class="fas fa-lock"></i>
+      <input type="password" name="password" id="registerPassword" placeholder=" " required />
+      <label for="password">Password:</label>
+      <i class="fas fa-eye" id="toggleRegisterPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
+    </div>
+
+    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+    <p id="recaptchaError" style="color: red; display: none;">Please verify that you are not a robot.</p><br>
+
+    <input type="submit" class="btn" name="signUp" value="Sign Up">
+  </form>
+  <p class="or">----------</p>
+  <div class="links">
+    <p>Already Have an Account?</p>
+    <button id="signInButton">Sign In</button>
+  </div>
 </div>
 
 <!-- Login Form -->
@@ -93,10 +110,12 @@
             <i class="fas fa-envelope"></i>
             <input type="email" name="email" placeholder="Email" required>
         </div>
-        <div class="input-group">
+        <div class="input-group" style="position: relative;">
             <i class="fas fa-lock"></i>
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="password" id="loginPassword" placeholder="Password" required>
+            <i class="fas fa-eye" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
         </div>
+
         <input type="submit" class="btn" value="Sign In" name="signIn">
         <div id="block-message" style="display: none; color: red; margin-top: 10px;"></div>
         <button id="request-access" style="display: none; margin-top: 5px;">Request Access</button>
@@ -211,8 +230,31 @@ function handleSubmit() {
 }
 </script>
 
+<!-- 👁 Password Toggle Scripts -->
 <script>
-// LOGIN WITH OTP + BLOCK CHECK
+document.getElementById("togglePassword").addEventListener("click", function () {
+    const passwordInput = document.getElementById("loginPassword");
+    const icon = this;
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        passwordInput.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+});
+
+document.getElementById("toggleRegisterPassword").addEventListener("click", function () {
+    const input = document.getElementById("registerPassword");
+    this.classList.toggle("fa-eye-slash");
+    input.type = input.type === "password" ? "text" : "password";
+});
+</script>
+
+<!-- OTP Scripts -->
+<script>
 const loginForm = document.getElementById('login-form');
 
 loginForm.addEventListener('submit', function(e) {
@@ -239,7 +281,6 @@ loginForm.addEventListener('submit', function(e) {
     });
 });
 
-// REQUEST ACCESS BUTTON
 document.getElementById("request-access").addEventListener("click", function () {
     const email = sessionStorage.getItem("blockedEmail");
 
@@ -254,7 +295,6 @@ document.getElementById("request-access").addEventListener("click", function () 
     });
 });
 
-// OTP SUBMIT
 document.getElementById("otpForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const otp = document.getElementById("otpInput").value;
