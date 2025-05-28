@@ -20,17 +20,9 @@ $blockCheck->execute();
 $blockResult = $blockCheck->get_result();
 
 if ($blockResult->num_rows > 0) {
-    // Build the block message with a request unblock form/button
-    $blockedMessage = '
-        <p>Your account is blocked. Please request admin approval to regain access.</p>
-        <form action="request_unblock.php" method="POST">
-            <input type="hidden" name="email" value="' . htmlspecialchars($email) . '">
-            <button type="submit">Request Access</button>
-        </form>
-    ';
     echo json_encode([
         'success' => false,
-        'message' => $blockedMessage
+        'message' => 'Your account is blocked. Please contact the administrator to regain access.'
     ]);
     exit;
 }
